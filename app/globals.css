@@ -710,6 +710,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .course-filters button[aria-pressed="true"] { color:#fff; background:var(--deep); border-color:var(--deep); }
 .course-filters button[aria-pressed="true"] span { color:#dcbbea; }
 .course-filters button:focus-visible { outline:3px solid #b68ac9; outline-offset:3px; }
+.all-courses-page .course-filters { margin-top:32px; scroll-margin-top:110px; }
 @media (max-width:600px) { .course-filters { flex-wrap:nowrap; overflow-x:auto; margin:0 -22px 24px; padding:0 22px 4px; }.course-filters button { flex:none; } }
 .videos-page .academy-hero-copy h1 em,.videos-page .academy-careers h2 em { color:var(--purple); }
 .videos-section { padding:var(--section-space) 32px; }

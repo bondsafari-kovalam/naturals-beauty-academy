@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, BadgeCheck, ChevronDown, GraduationCap, Mail, Phone, Quote, Sparkles, Star, UsersRound, Video } from 'lucide-react'
 import { type Course, coursePath } from '../lib/site-config'
 import type { Testimonial } from '../lib/testimonials'
+import { courseGroupsFor, coursesInGroup } from '../lib/course-groups'
 import { ScrollRevealObserver } from '../components/scroll-reveal-observer'
 import { SiteFooter } from '../components/site-footer'
 import { SiteHeader } from '../components/site-header'
@@ -51,26 +52,6 @@ function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) 
 
 function HelpSection() {
   return <section className="help-section"><div className="help-shell"><div className="help-heading"><p className="section-label">Here for you</p><h2>How can we <em>help?</em></h2><p>Have a question? We&rsquo;re happy to help you find the information you need.</p></div><div className="help-grid"><article className="help-card help-faq-card" data-reveal><span className="help-icon"><Sparkles /></span><p className="help-kicker">Need an answer?</p><h3>Frequently asked questions</h3><p>If you have questions about products, orders or account info, you may find the answer in our FAQ.</p><a href="#faqs" className="help-action">Browse FAQs <ArrowRight /></a></article><article className="help-card" data-reveal><span className="help-icon"><Phone /></span><p className="help-kicker">Give us a call</p><h3>Talk to our team</h3><p>You can always give us a call: Mon to Fri from 9 am till 7 pm EST.</p><a href="tel:08929660506" className="help-contact">08929660506</a></article><article className="help-card" data-reveal><span className="help-icon"><Mail /></span><p className="help-kicker">Drop us a line</p><h3>We&rsquo;re one email away</h3><p>Drop us a line and we will get back to you as soon as possible.</p><a href="mailto:om@naturalsbeautyacademypro.com" className="help-contact help-email">om@naturalsbeautyacademypro.com</a></article></div></div></section>
-}
-
-const courseGroups: Array<{ label: string; categories?: string[] }> = [
-  { label: 'All courses' },
-  { label: 'Beauty Therapy', categories: ['Beauty Therapy'] },
-  { label: 'Hair Dressing', categories: ['Hair Dressing'] },
-  { label: 'Makeup Artistry', categories: ['Makeup Artistry'] },
-  { label: 'Nail Art', categories: ['Nail Art & Extensions'] },
-  { label: 'Cosmetology', categories: ['Cosmetology'] },
-  { label: 'Beauty & Hair', categories: ['Beauty Therapy & Hair Dressing'] },
-  { label: 'Certificate Courses', categories: ['Hair Styling', 'Personal Grooming', 'Mehandi'] },
-]
-
-const coursesInGroup = (group: (typeof courseGroups)[number], courseCatalog: Course[]) => group.categories ? courseCatalog.filter((course) => group.categories!.includes(course.category)) : courseCatalog
-
-// Categories added from the admin panel get their own filter button, after the built-in groups.
-function courseGroupsFor(courseCatalog: Course[]) {
-  const grouped = new Set(courseGroups.flatMap((group) => group.categories ?? []))
-  const extra = [...new Set(courseCatalog.map((course) => course.category))].filter((category) => !grouped.has(category))
-  return [...courseGroups, ...extra.map((category) => ({ label: category, categories: [category] }))]
 }
 
 function CourseCarousel({ courseCatalog }: { courseCatalog: Course[] }) {
