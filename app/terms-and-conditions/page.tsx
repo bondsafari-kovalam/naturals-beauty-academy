@@ -7,6 +7,7 @@ import { SiteHeader } from '../../components/site-header'
 export const metadata = {
   title: 'Terms & Conditions | Naturals Beauty Academy',
   description: 'Read the terms and conditions for using the Naturals Beauty Academy website.',
+  alternates: { canonical: '/terms-and-conditions' },
 }
 
 const termsSections = [

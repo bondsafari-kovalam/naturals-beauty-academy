@@ -7,6 +7,7 @@ import { SiteHeader } from '../../components/site-header'
 export const metadata = {
   title: 'The Academy | Naturals Beauty Academy',
   description: 'Discover the story, mission and professional beauty education at Naturals Beauty Academy, Alappuzha.',
+  alternates: { canonical: '/the-academy' },
 }
 
 const learningAreas = ['Hair', 'Makeup', 'Skin', 'Nails', 'Bridal', 'Cosmetology']

@@ -38,23 +38,14 @@ function BenefitsSection() {
 }
 
 // Published testimonials from the admin panel (Testimonials section); loaded on the server in app/page.tsx.
+// The cards scroll right to left in a continuous loop: each group repeats the list until it is wide
+// enough to fill the row, and a second, hidden copy of the group makes the loop seamless.
 function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
-  const testimonialsRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const track = testimonialsRef.current
-    if (!track || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const advance = () => {
-      if (track.matches(':hover') || track.contains(document.activeElement)) return
-      const card = track.querySelector<HTMLElement>('.testimonial-card')
-      if (!card) return
-      const step = card.offsetWidth + 18
-      const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4
-      track.scrollTo({ left: atEnd ? 0 : track.scrollLeft + step, behavior: 'smooth' })
-    }
-    const timer = window.setInterval(advance, 4000)
-    return () => window.clearInterval(timer)
-  }, [])
-  return <section id="testimonials" className="testimonials-section"><div className="testimonials-shell"><div className="testimonials-heading" data-reveal><p className="section-label">06 / Student stories</p><h2>Loved by our <em>learners.</em></h2><p>Hear from students who began their beauty journey with Naturals Beauty Academy.</p></div><div ref={testimonialsRef} className="testimonials-grid" aria-label="Student testimonials">{testimonials.map(({ id, quote, name, course, location, rating }) => <figure className="testimonial-card" data-reveal key={id}><span className="testimonial-icon"><Quote /></span><div className="testimonial-stars" aria-label={`Rated ${rating} out of 5`}>{Array.from({ length: rating }, (_, i) => <Star key={i} aria-hidden="true" />)}</div><blockquote>&ldquo;{quote}&rdquo;</blockquote><figcaption><span className="testimonial-avatar" aria-hidden="true">{name.charAt(0)}</span><span><strong>{name}</strong>{(course || location) && <span>{[course, location].filter(Boolean).join(' · ')}</span>}</span></figcaption></figure>)}</div></div></section>
+  if (testimonials.length === 0) return null
+  const repeats = Math.ceil(4 / testimonials.length)
+  const loop = Array.from({ length: repeats }, () => testimonials).flat()
+  const card = ({ id, quote, name, course, location, rating }: Testimonial, i: number) => <figure className="testimonial-card" key={`${id}-${i}`}><span className="testimonial-icon"><Quote /></span><div className="testimonial-stars" aria-label={`Rated ${rating} out of 5`}>{Array.from({ length: rating }, (_, s) => <Star key={s} aria-hidden="true" />)}</div><blockquote>&ldquo;{quote}&rdquo;</blockquote><figcaption><span className="testimonial-avatar" aria-hidden="true">{name.charAt(0)}</span><span><strong>{name}</strong>{(course || location) && <span>{[course, location].filter(Boolean).join(' · ')}</span>}</span></figcaption></figure>
+  return <section id="testimonials" className="testimonials-section"><div className="testimonials-shell"><div className="testimonials-heading" data-reveal><p className="section-label">06 / Student stories</p><h2>Loved by our <em>learners.</em></h2><p>Hear from students who began their beauty journey with Naturals Beauty Academy.</p></div><div className="testimonials-marquee" data-reveal aria-label="Student testimonials"><div className="testimonials-track" style={{ animationDuration: `${loop.length * 8}s` }}><div className="testimonials-group">{testimonials.map(card)}{loop.slice(testimonials.length).map((t, i) => <div className="testimonials-repeat" aria-hidden="true" key={`r-${i}`}>{card(t, i)}</div>)}</div><div className="testimonials-group" aria-hidden="true">{loop.map(card)}</div></div></div></div></section>
 }
 
 function HelpSection() {

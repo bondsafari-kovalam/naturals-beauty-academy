@@ -7,6 +7,7 @@ import { SiteHeader } from '../../components/site-header'
 export const metadata = {
   title: 'Privacy Policy | Naturals Beauty Academy',
   description: 'Learn how Naturals Beauty Academy collects, uses and safeguards your information.',
+  alternates: { canonical: '/privacy-policy' },
 }
 
 const collectionTypes = [

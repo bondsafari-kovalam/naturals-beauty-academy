@@ -9,6 +9,7 @@ import { getCourses } from '../../lib/courses'
 export const metadata = {
   title: 'Courses | Naturals Beauty Academy',
   description: 'Explore beauty therapy, hair dressing, makeup artistry, cosmetology and nail art courses at Naturals Beauty Academy.',
+  alternates: { canonical: '/courses' },
 }
 
 // Courses come from Supabase; refresh the static page at most every 5 minutes.

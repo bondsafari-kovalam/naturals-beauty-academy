@@ -1,5 +1,10 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+
+// These pages still hold placeholder text, so search engines are asked not to index them until the
+// academy's real FAQ and testimonials content is added.
+export const metadata: Metadata = { robots: { index: false, follow: true } }
 
 const content: Record<string, { title: string; intro: string }> = {
   testimonials: { title: 'Testimonials', intro: 'Discover what learners value about a hands-on beauty education.' },

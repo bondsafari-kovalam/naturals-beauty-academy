@@ -15,14 +15,14 @@ export const metadata: Metadata = {
     siteName: 'Naturals Beauty Academy',
     title: 'Naturals Beauty Academy | Alappuzha',
     description: 'Professional beauty education in hair, skin, makeup and more at Naturals Beauty Academy, Alappuzha.',
-    url: '/',
-    images: [{ url: '/icon.svg', width: 512, height: 512, alt: 'Naturals Beauty Academy logo' }],
+    // Social apps do not show SVG previews, so shared links use this 1200×630 PNG (pages with their own image override it).
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Alappuzha Naturals Beauty Academy — professional beauty courses' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Naturals Beauty Academy | Alappuzha',
     description: 'Professional beauty education in hair, skin, makeup and more at Naturals Beauty Academy, Alappuzha.',
-    images: ['/icon.svg'],
+    images: ['/og-image.png'],
   },
   icons: {
     icon: [{ url: '/icon.svg', type: 'image/svg+xml', sizes: 'any' }],

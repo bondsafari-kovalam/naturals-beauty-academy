@@ -15,8 +15,8 @@ from (
   union all select 6, 'Policies on courses (1 public read + 4 admin)',
     (select count(*) = 5 from pg_policies where schemaname = 'public' and tablename = 'courses'),
     (select count(*)::text || ' found' from pg_policies where schemaname = 'public' and tablename = 'courses')
-  union all select 7, 'Policies on enquiries (1 public insert + 3 admin)',
-    (select count(*) = 4 from pg_policies where schemaname = 'public' and tablename = 'enquiries'),
+  union all select 7, 'Policies on enquiries (3 admin, plus 1 public insert until 015 is run)',
+    (select count(*) in (3, 4) from pg_policies where schemaname = 'public' and tablename = 'enquiries'),
     (select count(*)::text || ' found' from pg_policies where schemaname = 'public' and tablename = 'enquiries')
   union all select 8, 'Visitors cannot write courses',
     not (has_table_privilege('anon', 'public.courses', 'insert') or has_table_privilege('anon', 'public.courses', 'update') or has_table_privilege('anon', 'public.courses', 'delete')),

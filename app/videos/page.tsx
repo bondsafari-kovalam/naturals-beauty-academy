@@ -9,6 +9,7 @@ import { VideoLibrary } from '../../components/video-library'
 export const metadata = {
   title: 'Student Stories | Naturals Beauty Academy',
   description: 'Watch student stories, makeup, hair and beauty videos from Naturals Beauty Academy, Alappuzha.',
+  alternates: { canonical: '/videos' },
 }
 
 // New uploads appear on the site within five minutes when the YouTube API is configured.

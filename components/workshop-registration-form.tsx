@@ -1,16 +1,15 @@
 'use client'
 
-import Script from 'next/script'
 import { useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import { getAttribution } from '../lib/attribution'
 import { trackWorkshopEvent } from '../lib/analytics'
 import { isValidEmail, normalisePhone } from '../lib/workshop-campaign'
+import { TurnstileField, resetTurnstile } from './turnstile-field'
 
 type Props = { slug: string; title: string; whatsappUrl: string | null }
 type Errors = Partial<Record<'fullName' | 'phone' | 'email', string>>
 
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 export function WorkshopRegistrationForm({ slug, title, whatsappUrl }: Props) {
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle')
@@ -50,6 +49,7 @@ export function WorkshopRegistrationForm({ slug, title, whatsappUrl }: Props) {
         if (result.field) setErrors({ [result.field]: result.error })
         setError(result.error ?? 'We could not save your registration. Please try again.')
         setState('idle')
+        resetTurnstile()
         return
       }
       setState('done')
@@ -57,6 +57,7 @@ export function WorkshopRegistrationForm({ slug, title, whatsappUrl }: Props) {
     } catch {
       setError('We could not reach the server. Please check your connection and try again.')
       setState('idle')
+      resetTurnstile()
     } finally {
       sending.current = false
     }
@@ -94,7 +95,7 @@ export function WorkshopRegistrationForm({ slug, title, whatsappUrl }: Props) {
     </div>
     {/* Honeypot: hidden from people, often filled in by bots. */}
     <div className="wr-hp" aria-hidden><label htmlFor="wr-website">Website</label><input id="wr-website" name="website" tabIndex={-1} autoComplete="off" /></div>
-    {TURNSTILE_SITE_KEY && <><Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" /><div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} /></>}
+    <TurnstileField />
     <button type="submit" className="button button-dark wr-submit" disabled={state === 'sending'}>{state === 'sending' ? 'Submitting…' : <>Submit registration <ArrowRight /></>}</button>
     <p className="wr-note">We use your details only to contact you about this workshop. Registration is confirmed once our team calls or messages you.</p>
   </form>

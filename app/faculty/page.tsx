@@ -9,6 +9,7 @@ import { getFaculty, type FacultyMember } from '../../lib/faculty'
 export const metadata = {
   title: 'Our Faculty | Naturals Beauty Academy',
   description: 'Meet the experienced beauty educators who train students at Naturals Beauty Academy, Alappuzha.',
+  alternates: { canonical: '/faculty' },
 }
 
 // The admin panel is a separate app, so its revalidatePath cannot invalidate this page.

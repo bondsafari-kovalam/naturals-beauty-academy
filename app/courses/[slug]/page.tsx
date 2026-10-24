@@ -26,6 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
+  // WhatsApp, Facebook and X cannot show AVIF previews; those courses share the site image instead.
+  const shareImage = /\.avif$/i.test(course.image) ? '/og-image.png' : course.image
+
   return {
     title: `${course.title} | ${siteConfig.name}`,
     description: course.description,
@@ -35,13 +38,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: course.title,
       description: course.description,
       url: `/courses/${course.slug}`,
-      images: [{ url: course.image, alt: course.imageAlt ?? `${course.title} course` }],
+      images: [{ url: shareImage, alt: course.imageAlt ?? `${course.title} course` }],
     },
     twitter: {
       card: 'summary_large_image',
       title: course.title,
       description: course.description,
-      images: [course.image],
+      images: [shareImage],
     },
   }
 }

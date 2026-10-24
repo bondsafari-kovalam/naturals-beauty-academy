@@ -8,6 +8,7 @@ import { SiteHeader } from '../../components/site-header'
 export const metadata = {
   title: 'Contact | Naturals Beauty Academy',
   description: 'Get in touch with Naturals Beauty Academy in Alappuzha, Kerala.',
+  alternates: { canonical: '/contact' },
 }
 
 const academyAddress = 'Cheriya Kalavoor Temple, ASAP Community Skill Park (Additional Skill Acquisition Program), Behind Little Flower Nursery, Alappuzha, Kerala 688522, India'
@@ -27,6 +28,6 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
       <article className="contact-info-card"><span className="contact-info-icon"><Clock3 /></span><p className="contact-info-label">Opening hours</p><h3>Plan your visit</h3><p>Our team is available during the week.</p><p className="contact-hours"><strong>Monday – Friday</strong><span>9 AM – 7 PM</span></p></article>
     </div><div className="contact-map-panel"><div className="contact-map-copy"><p className="section-label">Visit Naturals</p><h3>Find us in <em>Alappuzha.</em></h3><p>Come meet us in person at ASAP Community Skill Park, Cheriya Kalavoor.</p><a href={mapLink} target="_blank" rel="noreferrer" className="button button-dark">Get directions <ArrowRight /></a></div><div className="contact-map-frame"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d8565.577568900657!2d76.32326076161468!3d9.582653181746686!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b08870450426c6d%3A0xbc9697ac06039c54!2sASAP%20Community%20Skill%20Park%20Cheriya%20Kalavoor!5e0!3m2!1sen!2sin!4v1792135568680!5m2!1sen!2sin" title="Map to Naturals Beauty Academy at ASAP Community Skill Park, Cheriya Kalavoor" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div></div></section>
 
-    <section className="contact-form-section" id="enquiry"><div className="contact-form-shell"><div className="contact-form-intro"><p className="section-label">Drop us a line</p><h2>Let&rsquo;s start a <em>conversation.</em></h2><p>We are here to help. Complete the short form below and we&rsquo;ll respond as soon as possible.</p><div className="contact-form-note"><span><Phone /></span><p>Your enquiry is sent to our team, and WhatsApp opens with the same details so you can chat with us straight away.</p></div></div><div className="contact-form-card"><ContactForm courses={courses.map((course) => course.title)} defaultCourse={defaultCourse} /></div></div></section>
+    <section className="contact-form-section" id="enquiry"><div className="contact-form-shell"><div className="contact-form-intro"><p className="section-label">Drop us a line</p><h2>Let&rsquo;s start a <em>conversation.</em></h2><p>We are here to help. Complete the short form below and we&rsquo;ll respond as soon as possible.</p><div className="contact-form-note"><span><Mail /></span><p>Your enquiry is emailed straight to our team, and we&rsquo;ll get back to you as soon as possible.</p></div></div><div className="contact-form-card"><ContactForm courses={courses.map((course) => course.title)} defaultCourse={defaultCourse} /></div></div></section>
   </main><SiteFooter /></>
 }
