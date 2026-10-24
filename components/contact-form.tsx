@@ -79,9 +79,16 @@ function CourseSelect({ courses, defaultValue }: { courses: string[]; defaultVal
 
 // Enquiry form: /api/contact emails the enquiry to the team and saves it for the admin panel
 // (public.enquiries).
-export function ContactForm({ courses, defaultCourse = '' }: { courses: string[]; defaultCourse?: string }) {
+export function ContactForm({ courses, courseSlugs = {} }: { courses: string[]; courseSlugs?: Record<string, string> }) {
   const [status, setStatus] = useState<Status>(null)
   const [sending, setSending] = useState(false)
+  // ?course=<slug> (the "Enquire about this course" link) pre-selects that course. Read here in the browser
+  // so the contact page can stay pre-built instead of rendering on every visit.
+  const [defaultCourse, setDefaultCourse] = useState('')
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('course')
+    if (slug && courseSlugs[slug]) setDefaultCourse(courseSlugs[slug])
+  }, [courseSlugs])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -132,7 +139,7 @@ export function ContactForm({ courses, defaultCourse = '' }: { courses: string[]
     <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="contact-honeypot" />
     <div className="contact-form-fields">
       <label>Email address<input name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={254} /></label>
-      <CourseSelect courses={courses} defaultValue={courses.includes(defaultCourse) ? defaultCourse : ''} />
+      <CourseSelect key={defaultCourse} courses={courses} defaultValue={courses.includes(defaultCourse) ? defaultCourse : ''} />
     </div>
     <label>Your message <span>(optional if you choose a course)</span><textarea name="message" rows={5} placeholder="Tell us what you would like to know..." maxLength={4500} /></label>
     <TurnstileField />

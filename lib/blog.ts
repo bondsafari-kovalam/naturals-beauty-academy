@@ -153,9 +153,13 @@ export async function getBlogListing({ category = '', q = '', page = 1 }: { cate
   if (!supabase) return fallbackListing(category, search, page)
 
   try {
-    const [categoryRows, usedRows] = await Promise.all([
+    // Featured article: only on the unfiltered first page; the newest featured post, else the newest post.
+    // Fetched together with the categories (it does not depend on them) to save a round trip.
+    const showFeatured = !category && !search && page === 1
+    const [categoryRows, usedRows, featuredRows] = await Promise.all([
       supabase.from('blog_categories').select('id, name, slug').order('sort_order').order('name'),
       livePosts(supabase, 'category_id'),
+      showFeatured ? livePosts(supabase, LIST_COLUMNS).order('is_featured', { ascending: false }).order('published_at', { ascending: false }).limit(1) : null,
     ])
     if (isMissingTable(categoryRows.error) || isMissingTable(usedRows.error)) return fallbackListing(category, search, page)
     if (categoryRows.error || usedRows.error) throw categoryRows.error ?? usedRows.error
@@ -166,12 +170,8 @@ export async function getBlogListing({ category = '', q = '', page = 1 }: { cate
     const categories = allCategories.filter((c) => used.has(c.id)).map(({ name, slug }) => ({ name, slug }))
     const active = allCategories.find((c) => c.slug === category) ?? null
 
-    // Featured article: only on the unfiltered first page; the newest featured post, else the newest post.
-    let featured: BlogPost | null = null
-    if (!category && !search && page === 1) {
-      const { data } = await livePosts(supabase, LIST_COLUMNS).order('is_featured', { ascending: false }).order('published_at', { ascending: false }).limit(1)
-      featured = data?.[0] ? toPost(data[0] as unknown as Row) : null
-    }
+    const featuredRow = featuredRows?.data?.[0]
+    const featured: BlogPost | null = featuredRow ? toPost(featuredRow as unknown as Row) : null
 
     let query = livePosts(supabase, LIST_COLUMNS, { count: 'exact' })
     if (category) query = query.eq('category_id', active?.id ?? '00000000-0000-0000-0000-000000000000')

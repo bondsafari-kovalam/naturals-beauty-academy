@@ -39,12 +39,14 @@ function durationSeconds(value: string | undefined) {
 
 // youtube.com/shorts/<id> answers 200 for a Short and redirects (303) for a regular video.
 // Results never change, so they are remembered for the life of the server.
+// No `cache: 'no-store'` here: it would make /videos render on every visit (about 7 s) instead of being
+// pre-built and refreshed every 5 minutes.
 const shortsCache = new Map<string, boolean>()
 async function isShortsVideo(id: string) {
   const known = shortsCache.get(id)
   if (known !== undefined) return known
   try {
-    const response = await fetch(`https://www.youtube.com/shorts/${id}`, { method: 'HEAD', redirect: 'manual', cache: 'no-store' })
+    const response = await fetch(`https://www.youtube.com/shorts/${id}`, { method: 'HEAD', redirect: 'manual' })
     const isShort = response.status === 200
     if (response.status === 200 || (response.status >= 300 && response.status < 400)) shortsCache.set(id, isShort)
     return isShort
