@@ -6,7 +6,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { SiteFooter } from '../../../components/site-footer'
 import { SiteHeader } from '../../../components/site-header'
-import { canOptimize, formatBlogDate, getBlogPost, getBlogSlugs, getRelatedPosts, siteUrl } from '../../../lib/blog'
+import { formatBlogDate, getBlogPost, getBlogSlugs, getRelatedPosts, siteUrl } from '../../../lib/blog'
+import { canOptimize } from '../../../lib/images'
 import { sanitizeBlogHtml } from '../../../lib/blog-html'
 
 // Re-check every 5 minutes, so scheduled posts appear (and edits show) even without an admin refresh.

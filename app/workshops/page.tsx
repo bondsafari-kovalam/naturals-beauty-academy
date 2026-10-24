@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { canOptimize } from '../../lib/images'
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, Clock, IndianRupee, MapPin, MessageCircle, Ticket } from 'lucide-react'
 import { ScrollRevealObserver } from '../../components/scroll-reveal-observer'
@@ -46,7 +47,7 @@ export default async function WorkshopsPage() {
             const href = `/workshops/${workshop.slug}`
             return <li key={workshop.slug} className="ws-card" data-reveal>
               <UtmLink href={href} className="ws-card-image" tabIndex={-1} aria-hidden>
-                <Image src={workshop.image} alt="" fill sizes="(max-width: 640px) 92vw, (max-width: 1000px) 46vw, 370px" />
+                <Image src={workshop.image} unoptimized={!canOptimize(workshop.image)} alt="" fill sizes="(max-width: 640px) 92vw, (max-width: 1000px) 46vw, 370px" />
                 <span className="ws-date"><strong>{date.day}</strong>{date.month}</span>
                 {seats && <span className={`ws-seats ws-seats--${seats.tone}`}>{seats.text}</span>}
               </UtmLink>

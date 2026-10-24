@@ -39,7 +39,23 @@ export function SiteHeader() {
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [open])
 
+  // While the menu is open the page behind it is blurred and cannot scroll (styles: html.menu-open).
+  // Close it when the screen grows to the desktop header, so the page is never left locked.
+  useEffect(() => {
+    if (!open) return
+    document.documentElement.classList.add('menu-open')
+    const desktop = window.matchMedia('(min-width: 981px)')
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false) }
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => {
+      document.documentElement.classList.remove('menu-open')
+      desktop.removeEventListener('change', closeOnDesktop)
+    }
+  }, [open])
+
   return (
+    <>
+    {open && <div className="menu-backdrop" aria-hidden="true" onClick={() => setOpen(false)} />}
     <header id="top" className="site-header">
       <div className="nav-shell">
         <Link href="/" className="brand" aria-label="Naturals Beauty Academy home">
@@ -62,5 +78,6 @@ export function SiteHeader() {
         <Link href="/contact#enquiry" onClick={() => setOpen(false)}>Enquire now</Link>
       </nav>
     </header>
+    </>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { canOptimize } from '../../../lib/images'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
@@ -72,7 +73,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           {course.duration && <p className="course-duration course-detail-duration">Duration: {course.duration}</p>}
           <Link href={`/contact?course=${course.slug}#enquiry`} className="button button-dark">Enquire about this course <ArrowRight /></Link>
         </div>
-        <div className="course-detail-image"><Image src={course.image} alt={course.imageAlt ?? `${course.title} course`} fill priority sizes="(max-width: 900px) 90vw, 44vw" /></div>
+        <div className="course-detail-image"><Image src={course.image} unoptimized={!canOptimize(course.image)} alt={course.imageAlt ?? `${course.title} course`} fill priority sizes="(max-width: 900px) 90vw, 44vw" /></div>
       </section>
 
       <section className="course-detail-overview">
@@ -111,7 +112,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         <div className="course-grid">
           {otherCourses.map((otherCourse) => (
             <Link href={`/courses/${otherCourse.slug}`} className="course-card" key={otherCourse.slug}>
-              <div className="course-image"><Image src={otherCourse.image} alt={otherCourse.imageAlt ?? `${otherCourse.title} course`} fill sizes="(max-width: 600px) 86vw, (max-width: 900px) 45vw, 30vw" /></div>
+              <div className="course-image"><Image src={otherCourse.image} unoptimized={!canOptimize(otherCourse.image)} alt={otherCourse.imageAlt ?? `${otherCourse.title} course`} fill sizes="(max-width: 600px) 86vw, (max-width: 900px) 45vw, 30vw" /></div>
               <p className="card-tag">{otherCourse.category}</p>
               <h3>{otherCourse.title}</h3>
               {otherCourse.duration && <p className="course-duration">Duration: {otherCourse.duration}</p>}

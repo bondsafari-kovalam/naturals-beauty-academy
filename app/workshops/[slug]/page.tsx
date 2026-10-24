@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { canOptimize } from '../../../lib/images'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, CalendarDays, Check, ChevronDown, Clock, Gift, Hourglass, IndianRupee, MapPin, MessageCircle, Ticket, UsersRound } from 'lucide-react'
@@ -96,7 +97,7 @@ export default async function WorkshopCampaignPage({ params }: { params: Promise
         </div>
         {block !== 'ended' && <><p className="section-label wl-countdown-title">Workshop starts in</p><WorkshopCountdown startsAt={workshopStartsAt(workshop)} /></>}
       </div>
-      <div className="feature-media" data-reveal><div className="feature-image"><Image src={workshop.image} alt={`${workshop.title} workshop`} fill priority sizes="(max-width: 900px) 90vw, 46vw" /></div><div className="feature-badge"><span className="feature-badge-icon"><CalendarDays /></span><span><strong>{date.day} {date.month}</strong>{seatsText}</span></div></div>
+      <div className="feature-media" data-reveal><div className="feature-image"><Image src={workshop.image} unoptimized={!canOptimize(workshop.image)} alt={`${workshop.title} workshop`} fill priority sizes="(max-width: 900px) 90vw, 46vw" /></div><div className="feature-badge"><span className="feature-badge-icon"><CalendarDays /></span><span><strong>{date.day} {date.month}</strong>{seatsText}</span></div></div>
     </div></section>
 
     <section className="wl-facts wl-facts--six" aria-label="Workshop details">{facts.map(({ label, value, icon: Icon }) => <div className="wl-fact" key={label}><span className="wl-fact-icon"><Icon /></span><span><small>{label}</small><strong>{value}</strong></span></div>)}</section>
@@ -112,7 +113,7 @@ export default async function WorkshopCampaignPage({ params }: { params: Promise
 
     {(!!workshop.agenda?.length || workshop.trainer) && <section className="wl-section wl-split wl-split--agenda">
       {!!workshop.agenda?.length && <div data-reveal><p className="section-label">{next()} / The day</p><h2>How the day <em>flows.</em></h2><ol className="wl-agenda">{workshop.agenda.map((item) => <li key={item.time + item.title}><span>{item.time}</span><strong>{item.title}</strong></li>)}</ol></div>}
-      {workshop.trainer && <article className="wl-trainer" data-reveal><div className="wl-trainer-image"><Image src={workshop.trainer.image} alt={`${workshop.trainer.name}, ${workshop.trainer.role}`} fill sizes="(max-width: 900px) 90vw, 380px" /></div><div className="wl-trainer-body"><p className="card-tag">Your trainer</p><h3>{workshop.trainer.name}</h3><p>{workshop.trainer.role}</p><Link href="/faculty" className="text-link">Meet our faculty <ArrowRight /></Link></div></article>}
+      {workshop.trainer && <article className="wl-trainer" data-reveal><div className="wl-trainer-image"><Image src={workshop.trainer.image} unoptimized={!canOptimize(workshop.trainer.image)} alt={`${workshop.trainer.name}, ${workshop.trainer.role}`} fill sizes="(max-width: 900px) 90vw, 380px" /></div><div className="wl-trainer-body"><p className="card-tag">Your trainer</p><h3>{workshop.trainer.name}</h3><p>{workshop.trainer.role}</p><Link href="/faculty" className="text-link">Meet our faculty <ArrowRight /></Link></div></article>}
     </section>}
 
     <section className="wr-section" id="register"><div className="wr-inner">

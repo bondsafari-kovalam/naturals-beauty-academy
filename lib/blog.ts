@@ -243,8 +243,3 @@ export async function getBlogSlugs(): Promise<string[]> {
 
 const IST = 'Asia/Kolkata'
 export const formatBlogDate = (value: string) => new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: IST }).format(new Date(value))
-
-/** next/image can only optimise local images and the configured remote hosts; anything else is shown as-is. */
-export function canOptimize(src: string) {
-  return src.startsWith('/') || src.includes('/storage/v1/object/public/') || src.startsWith('https://images.unsplash.com/')
-}

@@ -25,6 +25,7 @@ const nextConfig = {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
   images: {
+    // Images from any other host still work: lib/images.ts (canOptimize) loads them unoptimised. Keep the two in step.
     remotePatterns: [
       {
         protocol: 'https',

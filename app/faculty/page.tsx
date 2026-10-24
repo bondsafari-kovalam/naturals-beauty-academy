@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { canOptimize } from '../../lib/images'
 import { ArrowRight, Award, GraduationCap } from 'lucide-react'
 import { ScrollRevealObserver } from '../../components/scroll-reveal-observer'
 import { SiteFooter } from '../../components/site-footer'
@@ -22,7 +23,7 @@ const experienceText = (value: string) => (/^\d+\+?$/.test(value.trim()) ? `${va
 /** Wide card for the academy head and senior faculty: photo on the left, details on the right. */
 function LeaderCard({ member, tag, role }: { member: FacultyMember; tag: string; role?: string }) {
   return <article className="fs-head" data-reveal>
-    <div className="fs-head-image"><Image src={member.image} alt={`${member.name}, ${member.role}`} fill sizes="(max-width: 800px) 90vw, 420px" /></div>
+    <div className="fs-head-image"><Image src={member.image} unoptimized={!canOptimize(member.image)} alt={`${member.name}, ${member.role}`} fill sizes="(max-width: 800px) 90vw, 420px" /></div>
     <div className="fs-head-body">
       <p className="card-tag">{tag}</p>
       <h3>{member.name}</h3>
@@ -37,7 +38,7 @@ function LeaderCard({ member, tag, role }: { member: FacultyMember; tag: string;
 function FacultyCard({ member, compact }: { member: FacultyMember; compact?: boolean }) {
   return <article className={`faculty-card${compact ? ' faculty-card--member' : ''}`} data-reveal>
     <div className="faculty-image">
-      <Image src={member.image} alt={`${member.name}, ${member.role}`} fill sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 30vw" />
+      <Image src={member.image} unoptimized={!canOptimize(member.image)} alt={`${member.name}, ${member.role}`} fill sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 30vw" />
       {member.experience && <span className="faculty-experience"><Award />{experienceText(member.experience)}</span>}
     </div>
     <div className="faculty-body">

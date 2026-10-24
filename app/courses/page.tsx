@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { canOptimize } from '../../lib/images'
 import { ArrowRight } from 'lucide-react'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
@@ -28,7 +29,7 @@ export default async function CoursesPage() {
           {courses.map((course, index) => (
             <Link href={coursePath(course.slug)} className="course-card" key={course.slug} aria-label={`View details for ${course.title}`}>
               <div className="course-image">
-                <Image src={course.image} alt={course.imageAlt ?? `${course.title} course`} fill sizes="(max-width: 600px) 90vw, (max-width: 900px) 45vw, 30vw" />
+                <Image src={course.image} unoptimized={!canOptimize(course.image)} alt={course.imageAlt ?? `${course.title} course`} fill sizes="(max-width: 600px) 90vw, (max-width: 900px) 45vw, 30vw" />
                 <span>{String(index + 1).padStart(2, '0')}</span>
               </div>
               <p className="card-tag">{course.category}</p>

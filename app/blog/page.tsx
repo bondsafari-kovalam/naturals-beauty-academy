@@ -6,7 +6,8 @@ import { ArrowLeft, ArrowRight, Search } from 'lucide-react'
 import { ScrollRevealObserver } from '../../components/scroll-reveal-observer'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
-import { BLOG_PAGE_SIZE, canOptimize, cleanSearch, formatBlogDate, getBlogListing, type BlogPost } from '../../lib/blog'
+import { BLOG_PAGE_SIZE, cleanSearch, formatBlogDate, getBlogListing, type BlogPost } from '../../lib/blog'
+import { canOptimize } from '../../lib/images'
 import { BlogGridSkeleton } from './blog-skeleton'
 
 export const metadata: Metadata = {

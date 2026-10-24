@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { canOptimize } from '../lib/images'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, BadgeCheck, ChevronDown, GraduationCap, Mail, Phone, Quote, Sparkles, Star, UsersRound, Video } from 'lucide-react'
@@ -127,7 +128,7 @@ function CourseCarousel({ courseCatalog }: { courseCatalog: Course[] }) {
     <div className="course-carousel" role="region" aria-roledescription="carousel" aria-label="Featured courses" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false) }}>
       <div className="course-filters" aria-label="Filter courses by category">{groups.map((group, i) => <button type="button" key={group.label} aria-pressed={activeGroup === i} onClick={() => { filterChanged.current = true; setActiveGroup(i) }}>{group.label}<span>{coursesInGroup(group, courseCatalog).length}</span></button>)}</div>
       <div className="course-grid" ref={trackRef} tabIndex={0} aria-label="Course cards. Use the previous and next controls to browse.">
-        {visibleCourses.map((course, i) => <Link href={coursePath(course.slug)} className="course-card" data-reveal key={course.slug} aria-label={`View details for ${course.title}`}><div className="course-image"><Image src={course.image} alt={course.imageAlt ?? `${course.title} training`} fill sizes="(max-width: 600px) 86vw, (max-width: 900px) 45vw, 30vw" /><span>{String(i + 1).padStart(2, '0')}</span></div><p className="card-tag">{course.category}</p><h3>{course.title}</h3>{course.duration && <p className="course-duration">Duration: {course.duration}</p>}<p>{course.description}</p><span className="course-card-action">View course <ArrowRight /></span></Link>)}
+        {visibleCourses.map((course, i) => <Link href={coursePath(course.slug)} className="course-card" data-reveal key={course.slug} aria-label={`View details for ${course.title}`}><div className="course-image"><Image src={course.image} unoptimized={!canOptimize(course.image)} alt={course.imageAlt ?? `${course.title} training`} fill sizes="(max-width: 600px) 86vw, (max-width: 900px) 45vw, 30vw" /><span>{String(i + 1).padStart(2, '0')}</span></div><p className="card-tag">{course.category}</p><h3>{course.title}</h3>{course.duration && <p className="course-duration">Duration: {course.duration}</p>}<p>{course.description}</p><span className="course-card-action">View course <ArrowRight /></span></Link>)}
       </div>
       <div className="course-carousel-controls">
         <button type="button" onClick={() => move(-1)} aria-label="Previous courses"><ArrowLeft /></button>
