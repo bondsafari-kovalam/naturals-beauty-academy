@@ -58,20 +58,22 @@ export async function POST(request: Request) {
   const utm = Object.fromEntries(UTM_KEYS.map((key) => [`p_${key}`, text(attribution[key], 150) || null]))
 
   const unavailable = () => NextResponse.json({ error: 'Online registration is not available right now. Please register on WhatsApp.' }, { status: 503 })
-  const registrationSecret = websiteDbSecret()
   if (!isSupabaseConfigured) return unavailable()
-  if (!registrationSecret) {
-    console.error('Workshop registration: WORKSHOP_REGISTRATION_SECRET is not set (see supabase/migrations/012_workshop_registration_hardening.sql).')
-    return unavailable()
-  }
+  const registrationSecret = websiteDbSecret()
   try {
     const { url, key } = getSupabaseEnv()
     const supabase = createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
-    const { data, error } = await supabase.rpc('submit_workshop_registration', {
-      p_secret: registrationSecret, p_client_ip: ip,
+    const details = {
       p_slug: slug, p_full_name: fullName, p_phone: phone, p_email: email || null, p_message: message || null, ...utm,
       p_referrer: text(attribution.referrer, 500) || null, p_landing_path: text(attribution.landing_path, 300) || null,
-    })
+    }
+    // Preferred: submit_workshop_registration (012), which only accepts the server-only secret and rate-limits
+    // per IP. Until 012 is run and the secret is set, fall back to register_for_workshop (010); running 013
+    // removes that fallback.
+    let { data, error } = registrationSecret
+      ? await supabase.rpc('submit_workshop_registration', { p_secret: registrationSecret, p_client_ip: ip, ...details })
+      : { data: null, error: { code: 'PGRST202', message: 'WORKSHOP_REGISTRATION_SECRET is not set' } }
+    if (error?.code === 'PGRST202') ({ data, error } = await supabase.rpc('register_for_workshop', details))
     if (error) {
       // Logged without the visitor's details.
       console.error(`Workshop registration failed (${error.code}): ${error.message}`)

@@ -77,8 +77,7 @@ function CourseSelect({ courses, defaultValue }: { courses: string[]; defaultVal
   </div>
 }
 
-// Enquiry form: /api/contact emails the enquiry to the team and saves it for the admin panel
-// (public.enquiries).
+// Enquiry form: /api/contact saves the enquiry for the admin panel's Enquiries page (public.enquiries).
 export function ContactForm({ courses, courseSlugs = {} }: { courses: string[]; courseSlugs?: Record<string, string> }) {
   const [status, setStatus] = useState<Status>(null)
   const [sending, setSending] = useState(false)

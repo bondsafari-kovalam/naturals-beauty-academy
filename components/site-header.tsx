@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Menu, X } from 'lucide-react'
 
-const logo = '/alappuzha-naturals-beauty-academy-logo.png'
+// Header logo: Naturals Beauty Academy with the ASAP (Govt of Kerala) partnership mark.
+const logo = '/naturals-asap-logo.png'
 const links = [
   ['The Academy', '/the-academy'],
   ['Faculty', '/faculty'],
@@ -59,7 +60,7 @@ export function SiteHeader() {
     <header id="top" className="site-header">
       <div className="nav-shell">
         <Link href="/" className="brand" aria-label="Naturals Beauty Academy home">
-          <Image src={logo} alt="Alappuzha Naturals Beauty Academy" width={230} height={72} priority />
+          <Image src={logo} alt="Alappuzha Naturals Beauty Academy, in partnership with ASAP Kerala" width={900} height={527} sizes="150px" priority />
         </Link>
         <nav className="desktop-nav" aria-label="Main navigation">
           <Link href="/" aria-current={isActive('/') ? 'page' : undefined}>Home</Link>

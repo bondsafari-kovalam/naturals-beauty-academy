@@ -3,7 +3,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { clientIp, createRateLimiter, verifyTurnstile, websiteDbSecret } from '../../../lib/request-guard'
 import { getSupabaseEnv, isSupabaseConfigured } from '../../../lib/supabase/env'
 
-const recipient = 'om@naturalsbeautyacademypro.com'
+const unavailable = 'We could not send your enquiry right now. Please call us on 08929660506 or email om@naturalsbeautyacademypro.com.'
 const rateLimited = createRateLimiter(5)
 
 function clean(value: unknown, maxLength: number) {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Please submit the form again.' }, { status: 400 })
   }
 
-  // Silently accept honeypot submissions without sending email.
+  // Silently accept honeypot submissions without saving them.
   if (clean(payload.website, 200)) return NextResponse.json({ ok: true })
 
   const ip = clientIp(request)
@@ -42,61 +42,39 @@ export async function POST(request: Request) {
 
   const source = clean(payload.source, 60) || 'contact-form'
 
-  // 1. Save the enquiry so it is never lost, even if email is down. The database only accepts it with the
-  //    server-only secret and limits each IP to 5 enquiries per 10 minutes (supabase/migrations/014).
-  let saved = false
-  const secret = websiteDbSecret()
-  if (!isSupabaseConfigured || !secret) {
-    console.error('Enquiry not saved: Supabase or WORKSHOP_REGISTRATION_SECRET is not configured.')
-  } else {
-    try {
-      const { url, key } = getSupabaseEnv()
-      const supabase = createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
+  // Enquiries are only saved for the admin panel (Enquiries page); no email is sent.
+  if (!isSupabaseConfigured) {
+    console.error('Enquiry not saved: Supabase is not configured.')
+    return NextResponse.json({ error: unavailable }, { status: 503 })
+  }
+  try {
+    const { url, key } = getSupabaseEnv()
+    const supabase = createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
+    const enquiry = { name, email, phone, message, source }
+
+    // Preferred: submit_enquiry (supabase/migrations/014) only accepts the server-only secret and limits each IP
+    // to 5 enquiries per 10 minutes.
+    const secret = websiteDbSecret()
+    if (secret) {
       const { data, error } = await supabase.rpc('submit_enquiry', { p_secret: secret, p_client_ip: ip, p_name: name, p_email: email, p_phone: phone, p_message: message, p_source: source })
       const result = data as { ok: boolean; code: string } | null
-      if (error) console.error(`Could not save enquiry to Supabase (${error.code}): ${error.message}`)
-      else if (result?.code === 'rate_limited') return NextResponse.json({ error: 'Too many messages. Please wait a few minutes and try again.' }, { status: 429 })
-      else if (result?.code === 'invalid') return NextResponse.json({ error: 'Please check your details and try again.' }, { status: 400 })
-      else if (result?.code === 'unauthorized') console.error('Enquiry not saved: the database rejected WORKSHOP_REGISTRATION_SECRET. It must match the hash in private.app_secrets.')
-      else if (result?.ok) saved = true
-    } catch (error) {
-      // e.g. supabase-js needs Node.js 22+ (native WebSocket); log it and still try email below.
-      console.error('Supabase client failed:', error instanceof Error ? error.message : error)
+      if (result?.ok) return NextResponse.json({ ok: true })
+      if (result?.code === 'rate_limited') return NextResponse.json({ error: 'Too many messages. Please wait a few minutes and try again.' }, { status: 429 })
+      if (result?.code === 'invalid') return NextResponse.json({ error: 'Please check your details and try again.' }, { status: 400 })
+      if (result?.code === 'unauthorized') console.error('Enquiry not saved: the database rejected WORKSHOP_REGISTRATION_SECRET. It must match the hash in private.app_secrets.')
+      // PGRST202: 014 has not been run yet, so fall through to the direct insert below.
+      else if (error && error.code !== 'PGRST202') console.error(`Could not save enquiry to Supabase (${error.code}): ${error.message}`)
+      if (!error || error.code !== 'PGRST202') return NextResponse.json({ error: unavailable }, { status: 503 })
     }
-  }
 
-  // 2. Email the team when Resend is configured; saving alone is enough to succeed.
-  const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.RESEND_FROM_EMAIL
-  if (!apiKey || !from) {
-    if (saved) return NextResponse.json({ ok: true })
-    return NextResponse.json({ error: 'The enquiry service is not configured yet. Please email us directly at om@naturalsbeautyacademypro.com.' }, { status: 503 })
+    // Until 014 is set up: insert directly, as allowed by the "Website can submit new enquiries" policy (001).
+    // Running 015 removes that policy, after which only submit_enquiry works.
+    const { error } = await supabase.from('enquiries').insert(enquiry)
+    if (!error) return NextResponse.json({ ok: true })
+    console.error(`Could not save enquiry to Supabase (${error.code}): ${error.message}`)
+  } catch (error) {
+    // e.g. supabase-js needs Node.js 22+ (native WebSocket).
+    console.error('Supabase client failed:', error instanceof Error ? error.message : error)
   }
-
-  const text = [`Name: ${name}`, `Email: ${email}`, `Phone: ${phone || 'Not provided'}`, '', 'Message:', message].join('\n')
-  let response: Response
-  try {
-    response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from,
-        to: [recipient],
-        reply_to: email,
-        subject: `Website enquiry from ${name}`,
-        text,
-      }),
-    })
-  } catch {
-    if (saved) return NextResponse.json({ ok: true })
-    return NextResponse.json({ error: 'We could not reach the email service. Please try again later.' }, { status: 502 })
-  }
-
-  // Saved but not emailed: the visitor is fine, but the team must hear about it.
-  if (!response.ok) console.error(`Enquiry email failed: Resend answered HTTP ${response.status}.`)
-  if (!response.ok && !saved) {
-    return NextResponse.json({ error: 'We could not send your message right now. Please email us directly at om@naturalsbeautyacademypro.com.' }, { status: 502 })
-  }
-
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ error: unavailable }, { status: 503 })
 }
