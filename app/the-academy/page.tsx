@@ -3,18 +3,19 @@ import Image from 'next/image'
 import { ArrowRight, BriefcaseBusiness, GraduationCap, Sparkles } from 'lucide-react'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'The Academy | Naturals Beauty Academy',
-  description: 'Discover the story, mission and professional beauty education at Naturals Beauty Academy, Alappuzha.',
-  alternates: { canonical: '/the-academy' },
-}
+export const metadata = pageMetadata({
+  title: 'About the Academy in Alappuzha',
+  description: 'Naturals Beauty Academy Alappuzha, in partnership with ASAP Kerala, trains beauty professionals to BW&SSC standards in hair, skin, makeup, nails and cosmetology.',
+  path: '/the-academy',
+})
 
 const learningAreas = ['Hair', 'Makeup', 'Skin', 'Nails', 'Bridal', 'Cosmetology']
 
 export default function AcademyPage() {
   return <><SiteHeader /><main className="academy-page">
-    <section className="academy-hero"><div className="academy-hero-inner"><p className="section-label">Get to know us better · Alappuzha</p><div className="academy-hero-grid"><div className="academy-hero-copy"><h1>Our story and mission <em>are worth sharing.</em></h1><p>Naturals Beauty Academy is the educational vertical of India&rsquo;s largest chain of salons.</p><Link href="#our-story" className="button button-dark">Discover our story <ArrowRight /></Link></div><div className="academy-logo-panel"><span className="academy-logo-glow" /><Image src="/alappuzha-naturals-beauty-academy-logo.png" alt="Alappuzha Naturals Beauty Academy — Hair, Skin, Makeup and Nails" width={1534} height={1025} priority /></div></div></div></section>
+    <section className="academy-hero"><div className="academy-hero-inner"><p className="section-label">Get to know us better · Alappuzha</p><div className="academy-hero-grid"><div className="academy-hero-copy"><h1>Our story and mission <em>are worth sharing.</em></h1><p>Naturals Beauty Academy is the educational vertical of India&rsquo;s largest chain of salons.</p><Link href="#our-story" className="button button-dark">Discover our story <ArrowRight /></Link></div><div className="academy-logo-panel"><span className="academy-logo-glow" /><Image src="/alappuzha-naturals-beauty-academy-logo.png" alt="Alappuzha Naturals Beauty Academy — Hair, Skin, Makeup and Nails" width={1534} height={1025} loading="eager" fetchPriority="high" /></div></div></div></section>
 
     <section className="academy-story section" id="our-story"><div className="academy-story-label"><p className="section-label">01 / Get to know us better</p><span>Beauty education with purpose</span></div><div className="academy-story-content"><h2>Learn your craft.<br /><em>Shape your future.</em></h2><p>Naturals Beauty Academy offers courses in hair, makeup, skin, nails, bridal and much more. Our popular Diploma in Cosmetology brings hair, makeup and skin together in one professional course.</p><p>Our training module and curriculum follow Beauty &amp; Wellness Sector Skill Council of India (BW&amp;SSC) standards and are enhanced with trending formats in training.</p><p>Naturals Beauty Academy is a network of 30+ academies that has helped transform the careers of more than 40,000 people. Our students receive BWSSC-approved, ISO-accredited certification and 100% placement assistance, and the network reports a 95% placement rate locally and internationally.</p><p>Students in Cosmetology are provided with a Beauty Tool Kit to support their learning with international quality, tried-and-tested tools that can benefit their professional journey.</p><div className="academy-learning-areas">{learningAreas.map((area) => <span key={area}>{area}</span>)}</div></div></section>
 

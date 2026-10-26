@@ -3,12 +3,13 @@ import type { ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, Mail, MapPin, Phone, Scale } from 'lucide-react'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Terms & Conditions | Naturals Beauty Academy',
+export const metadata = pageMetadata({
+  title: 'Terms & Conditions',
   description: 'Read the terms and conditions for using the Naturals Beauty Academy website.',
-  alternates: { canonical: '/terms-and-conditions' },
-}
+  path: '/terms-and-conditions',
+})
 
 const termsSections = [
   ['introduction', 'Introduction'],

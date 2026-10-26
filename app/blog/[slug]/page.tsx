@@ -9,6 +9,7 @@ import { SiteHeader } from '../../../components/site-header'
 import { formatBlogDate, getBlogPost, getBlogSlugs, getRelatedPosts, siteUrl } from '../../../lib/blog'
 import { canOptimize } from '../../../lib/images'
 import { sanitizeBlogHtml } from '../../../lib/blog-html'
+import { absoluteUrl, breadcrumbSchema, jsonLd, organizationId } from '../../../lib/seo'
 
 // Re-check every 5 minutes, so scheduled posts appear (and edits show) even without an admin refresh.
 export const revalidate = 300
@@ -53,17 +54,16 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
     ['LinkedIn', `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`],
     ['Email', `mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(url)}`],
   ] as const
-  const absolute = (src: string) => (src.startsWith('/') ? `${siteUrl}${src}` : src)
   const structuredData = {
-    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.title, description: post.metaDescription ?? post.excerpt,
+    '@type': 'BlogPosting', headline: post.title, description: post.metaDescription ?? post.excerpt,
     datePublished: post.publishedAt, dateModified: post.updatedAt, mainEntityOfPage: url, articleSection: post.category.name,
-    ...(post.image && { image: absolute(post.socialImage ?? post.image) }),
+    ...(post.image && { image: absoluteUrl(post.socialImage ?? post.image) }),
     author: { '@type': post.author && post.author !== 'Naturals Beauty Academy' ? 'Person' : 'Organization', name: post.author ?? 'Naturals Beauty Academy' },
-    publisher: { '@type': 'Organization', name: 'Naturals Beauty Academy', logo: { '@type': 'ImageObject', url: `${siteUrl}/naturals-beauty-academy-logo.png` } },
+    publisher: { '@type': 'Organization', '@id': organizationId, name: 'Naturals Beauty Academy', logo: { '@type': 'ImageObject', url: `${siteUrl}/naturals-beauty-academy-logo.png` } },
   }
 
   return <><SiteHeader /><main className="blog-article-page"><div className="blog-article-shell">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(structuredData, breadcrumbSchema([['Home', '/'], ['Blog', '/blog'], ...(post.category.slug ? [[post.category.name, `/blog?category=${post.category.slug}`] as [string, string]] : []), [post.title, `/blog/${post.slug}`]]))} />
     <nav className="blog-breadcrumb" aria-label="Breadcrumb"><ol><li><Link href="/">Home</Link></li><li><Link href="/blog">Blog</Link></li><li><Link href={`/blog?category=${post.category.slug}`}>{post.category.name}</Link></li><li aria-current="page">{post.title}</li></ol></nav>
     <header className="blog-article-heading">
       <p className="section-label"><Link href={`/blog?category=${post.category.slug}`}>{post.category.name}</Link></p>
@@ -76,7 +76,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
       </p>
     </header>
     {post.image && <figure className="blog-article-figure">
-      <div className="blog-article-image"><Image src={post.image} alt={post.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 900px" unoptimized={!canOptimize(post.image)} /></div>
+      <div className="blog-article-image"><Image src={post.image} alt={post.imageAlt} fill loading="eager" fetchPriority="high" sizes="(max-width: 900px) 100vw, 900px" unoptimized={!canOptimize(post.image)} /></div>
       {post.imageCaption && <figcaption>{post.imageCaption}</figcaption>}
     </figure>}
     <article className="blog-article-copy blog-prose" dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(post.content) }} />
@@ -88,7 +88,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
     <div className="faculty-heading"><p className="section-label">Keep reading</p><h2 id="related-heading">Related <em>articles.</em></h2></div>
     <div className="blog-grid">{related.map((item) => <article className="blog-card" key={item.id}>
       <Link href={`/blog/${item.slug}`} className="blog-card-image" tabIndex={-1} aria-hidden>{item.image ? <Image src={item.image} alt={item.imageAlt} fill sizes="(max-width: 600px) 90vw, (max-width: 900px) 45vw, 30vw" unoptimized={!canOptimize(item.image)} /> : <span className="blog-image-fallback">{item.category.name}</span>}</Link>
-      <div className="blog-card-body"><div className="blog-card-meta"><span>{item.category.name}</span><time dateTime={item.publishedAt}>{formatBlogDate(item.publishedAt)}</time></div><h3><Link href={`/blog/${item.slug}`}>{item.title}</Link></h3><p>{item.excerpt}</p><Link href={`/blog/${item.slug}`} className="text-link" aria-label={`Read more: ${item.title}`}>Read more <ArrowRight /></Link></div>
+      <div className="blog-card-body"><div className="blog-card-meta"><span>{item.category.name}</span><time dateTime={item.publishedAt}>{formatBlogDate(item.publishedAt)}</time></div><h3><Link href={`/blog/${item.slug}`}>{item.title}</Link></h3><p>{item.excerpt}</p><Link href={`/blog/${item.slug}`} className="text-link">Read more<span className="sr-only">: {item.title}</span> <ArrowRight /></Link></div>
     </article>)}</div>
   </div></section>}
   </main><SiteFooter /></>

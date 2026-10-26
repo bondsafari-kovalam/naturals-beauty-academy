@@ -4,12 +4,13 @@ import { ContactForm } from '../../components/contact-form'
 import { getCourses } from '../../lib/courses'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Contact | Naturals Beauty Academy',
-  description: 'Get in touch with Naturals Beauty Academy in Alappuzha, Kerala.',
-  alternates: { canonical: '/contact' },
-}
+export const metadata = pageMetadata({
+  title: 'Contact Us – Address, Phone & Directions',
+  description: 'Visit Naturals Beauty Academy at ASAP Community Skill Park, Cheriya Kalavoor, Alappuzha, Kerala 688522. Call 08929660506, email us or send a course enquiry.',
+  path: '/contact',
+})
 
 const academyAddress = 'Cheriya Kalavoor Temple, ASAP Community Skill Park (Additional Skill Acquisition Program), Behind Little Flower Nursery, Alappuzha, Kerala 688522, India'
 const mapLink = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(academyAddress)

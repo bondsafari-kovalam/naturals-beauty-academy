@@ -3,12 +3,13 @@ import type { ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Privacy Policy | Naturals Beauty Academy',
+export const metadata = pageMetadata({
+  title: 'Privacy Policy',
   description: 'Learn how Naturals Beauty Academy collects, uses and safeguards your information.',
-  alternates: { canonical: '/privacy-policy' },
-}
+  path: '/privacy-policy',
+})
 
 const collectionTypes = [
   ['Personal Information', 'Name, email address, phone number, postal address, and other identifiable information.'],

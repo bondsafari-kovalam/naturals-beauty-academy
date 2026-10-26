@@ -8,15 +8,28 @@ import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
 import { BLOG_PAGE_SIZE, cleanSearch, formatBlogDate, getBlogListing, type BlogPost } from '../../lib/blog'
 import { canOptimize } from '../../lib/images'
+import { pageMetadata } from '../../lib/seo'
 import { BlogGridSkeleton } from './blog-skeleton'
 
-export const metadata: Metadata = {
-  title: 'Blog | Naturals Beauty Academy',
-  description: 'Skincare routines, beauty tips, career guidance and academy stories from Naturals Beauty Academy, Alappuzha.',
-  alternates: { canonical: '/blog' },
-}
-
 type Filters = { category: string; q: string; page: number }
+
+const readFilters = (params: Record<string, string | string[] | undefined>): Filters => ({
+  category: typeof params.category === 'string' ? params.category.slice(0, 120) : '',
+  q: typeof params.q === 'string' ? cleanSearch(params.q) : '',
+  page: Math.max(1, Number.parseInt(String(params.page ?? '1'), 10) || 1),
+})
+
+// Category and page views are their own canonical URLs; search results are crawlable but kept out of the index.
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
+  const { category, q, page } = readFilters(await searchParams)
+  const topic = category ? `${category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())} Articles` : 'Beauty Tips & Career Advice Blog'
+  return pageMetadata({
+    title: page > 1 ? `${topic} – Page ${page}` : topic,
+    description: 'Skincare routines, beauty tips, career guidance and academy stories from Naturals Beauty Academy, Alappuzha.',
+    path: blogHref({ category, page }),
+    robots: q ? { index: false, follow: true } : undefined,
+  })
+}
 
 const blogHref = ({ category, q, page }: Partial<Filters>) => {
   const params = new URLSearchParams({ ...(category && { category }), ...(q && { q }), ...(page && page > 1 && { page: String(page) }) })
@@ -24,12 +37,7 @@ const blogHref = ({ category, q, page }: Partial<Filters>) => {
 }
 
 export default async function BlogPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const params = await searchParams
-  const filters: Filters = {
-    category: typeof params.category === 'string' ? params.category.slice(0, 120) : '',
-    q: typeof params.q === 'string' ? cleanSearch(params.q) : '',
-    page: Math.max(1, Number.parseInt(String(params.page ?? '1'), 10) || 1),
-  }
+  const filters = readFilters(await searchParams)
 
   return <><ScrollRevealObserver /><SiteHeader /><main className="blog-page">
     <section className="academy-hero blog-hero"><div className="academy-hero-inner"><p className="section-label">Beauty insights · Academy life</p><div className="academy-hero-copy"><h1>Learn, create and <em>grow.</em></h1><p>Skincare routines, beauty tips, career inspiration and stories from our classrooms in Alappuzha.</p></div></div></section>
@@ -83,7 +91,7 @@ async function BlogResults({ filters }: { filters: Filters }) {
 
 function PostImage({ post, sizes, priority }: { post: BlogPost; sizes: string; priority?: boolean }) {
   return post.image
-    ? <Image src={post.image} alt={post.imageAlt} fill sizes={sizes} priority={priority} unoptimized={!canOptimize(post.image)} />
+    ? <Image src={post.image} alt={post.imageAlt} fill sizes={sizes} loading={priority ? 'eager' : undefined} fetchPriority={priority ? 'high' : undefined} unoptimized={!canOptimize(post.image)} />
     : <span className="blog-image-fallback" aria-hidden>{post.category.name}</span>
 }
 
@@ -106,7 +114,7 @@ function BlogCard({ post }: { post: BlogPost }) {
       <div className="blog-card-meta"><span>{post.category.name}</span><time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time></div>
       <h3><Link href={`/blog/${post.slug}`}>{post.title}</Link></h3>
       <p>{post.excerpt}</p>
-      <Link href={`/blog/${post.slug}`} className="text-link" aria-label={`Read more: ${post.title}`}>Read more <ArrowRight /></Link>
+      <Link href={`/blog/${post.slug}`} className="text-link">Read more<span className="sr-only">: {post.title}</span> <ArrowRight /></Link>
     </div>
   </article>
 }

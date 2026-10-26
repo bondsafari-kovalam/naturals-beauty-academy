@@ -1,8 +1,7 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { getSupabaseEnv, isSupabaseConfigured } from './supabase/env'
 
-// Same address as metadataBase in app/layout.tsx; used for share links and structured data.
-export const siteUrl = 'https://naturalsbeautyacademypro.com'
+export { siteUrl } from './seo'
 
 export type BlogCategory = { name: string; slug: string }
 export type BlogPost = {
@@ -239,6 +238,17 @@ export async function getBlogSlugs(): Promise<string[]> {
   const { data, error } = await livePosts(supabase, 'slug')
   if (error) return isMissingTable(error) ? fallbackPosts.map((post) => post.slug) : []
   return (data as unknown as { slug: string }[]).map((row) => row.slug)
+}
+
+/** Live posts with their last edit time, for the sitemap's lastModified. */
+export async function getBlogSitemapEntries(): Promise<Array<{ slug: string; updatedAt: string }>> {
+  let supabase: Supabase | null
+  try { supabase = client() } catch { supabase = null }
+  const fromFallback = () => fallbackPosts.map((post) => ({ slug: post.slug, updatedAt: post.updatedAt }))
+  if (!supabase) return fromFallback()
+  const { data, error } = await livePosts(supabase, 'slug, updated_at, published_at')
+  if (error) return isMissingTable(error) ? fromFallback() : []
+  return (data as unknown as { slug: string; updated_at: string | null; published_at: string }[]).map((row) => ({ slug: row.slug, updatedAt: row.updated_at ?? row.published_at }))
 }
 
 const IST = 'Asia/Kolkata'

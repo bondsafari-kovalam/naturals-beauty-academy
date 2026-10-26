@@ -2,12 +2,13 @@ import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
 import { CourseList } from '../../components/course-list'
 import { getCourses } from '../../lib/courses'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Courses | Naturals Beauty Academy',
-  description: 'Explore beauty therapy, hair dressing, makeup artistry, cosmetology and nail art courses at Naturals Beauty Academy.',
-  alternates: { canonical: '/courses' },
-}
+export const metadata = pageMetadata({
+  title: 'Beauty Courses in Alappuzha',
+  description: 'Beauty therapy, hair dressing, makeup artistry, nail art, cosmetology, hair styling, grooming and mehandi courses in Alappuzha, Kerala. Compare durations and enquire.',
+  path: '/courses',
+})
 
 // Courses come from Supabase; refresh the static page at most every 5 minutes.
 export const revalidate = 300

@@ -3,10 +3,12 @@ import type { Metadata, Viewport } from 'next'
 import { MarketingTags } from '../components/marketing-tags'
 import { SiteMotion } from '../components/site-motion'
 import { WhatsAppFloat } from '../components/whatsapp-float'
+import { siteUrl } from '../lib/seo'
 import './globals.css'
 
+// Fallbacks only: every public page sets its own title, description, canonical and Open Graph (lib/seo.ts pageMetadata).
 export const metadata: Metadata = {
-  metadataBase: new URL('https://naturalsbeautyacademypro.com'),
+  metadataBase: new URL(siteUrl),
   title: 'Naturals Beauty Academy | Alappuzha',
   description: 'Professional beauty education in hair, skin, makeup and more at Naturals Beauty Academy, Alappuzha.',
   openGraph: {
@@ -45,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body className="antialiased">
         {children}
         <WhatsAppFloat />

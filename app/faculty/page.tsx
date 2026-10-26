@@ -6,12 +6,13 @@ import { ScrollRevealObserver } from '../../components/scroll-reveal-observer'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
 import { getFaculty, type FacultyMember } from '../../lib/faculty'
+import { absoluteUrl, jsonLd, organizationId, pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Our Faculty | Naturals Beauty Academy',
-  description: 'Meet the experienced beauty educators who train students at Naturals Beauty Academy, Alappuzha.',
-  alternates: { canonical: '/faculty' },
-}
+export const metadata = pageMetadata({
+  title: 'Beauty Trainers & Faculty',
+  description: 'Meet the beauty educators who guide practical training in makeup, hair dressing, beauty therapy and nail art at Naturals Beauty Academy, Alappuzha.',
+  path: '/faculty',
+})
 
 // The admin panel is a separate app, so its revalidatePath cannot invalidate this page.
 // Refresh faculty content periodically after an admin publishes or edits a profile.
@@ -58,7 +59,14 @@ export default async function FacultyPage() {
   const seniors = members.filter((member) => member.section === 'head')
   const trainers = members.filter((member) => member.section === 'trainer')
 
+  // The profiles shown below, as schema.org people working for the academy.
+  const people = members.map((member) => ({
+    '@type': 'Person', name: member.name, jobTitle: member.role, image: absoluteUrl(member.image),
+    worksFor: { '@id': organizationId }, ...(member.specialities.length > 0 && { knowsAbout: member.specialities }),
+  }))
+
   return <><ScrollRevealObserver /><SiteHeader /><main className="faculty-page">
+    {people.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(...people)} />}
     <section className="academy-hero"><div className="academy-hero-inner"><p className="section-label">Our faculty · Alappuzha</p><div className="academy-hero-copy"><h1>Learn from people who <em>love the craft.</em></h1><p>Our trainers bring years of salon and teaching experience to every practical session, guiding you from the basics to professional finishes.</p></div></div></section>
 
     {(head || seniors.length > 0) && <section className="fs-leaders"><div className="faculty-shell">

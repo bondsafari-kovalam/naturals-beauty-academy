@@ -60,7 +60,7 @@ export function SiteHeader() {
     <header id="top" className="site-header">
       <div className="nav-shell">
         <Link href="/" className="brand" aria-label="Naturals Beauty Academy home">
-          <Image src={logo} alt="Alappuzha Naturals Beauty Academy, in partnership with ASAP Kerala" width={900} height={527} sizes="150px" priority />
+          <Image src={logo} alt="Alappuzha Naturals Beauty Academy, in partnership with ASAP Kerala" width={900} height={527} sizes="150px" loading="eager" />
         </Link>
         <nav className="desktop-nav" aria-label="Main navigation">
           <Link href="/" aria-current={isActive('/') ? 'page' : undefined}>Home</Link>

@@ -10,12 +10,13 @@ import { UtmLink, WorkshopCampaignTracker } from '../../components/workshop-camp
 import { workshopDateParts, type Workshop } from '../../lib/site-config'
 import { getUpcomingWorkshops, registrationBlock } from '../../lib/workshops'
 import { whatsappNumber } from '../../lib/workshop-campaign'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Workshops | Naturals Beauty Academy',
-  description: 'Hands-on beauty workshops at Naturals Beauty Academy, Alappuzha. See upcoming dates and register online.',
-  alternates: { canonical: '/workshops' },
-}
+export const metadata = pageMetadata({
+  title: 'Beauty Workshops in Alappuzha',
+  description: 'Short, hands-on beauty workshops in makeup, hair and nails at Naturals Beauty Academy, Alappuzha. See upcoming dates and register online.',
+  path: '/workshops',
+})
 
 // Re-check every minute so finished workshops drop off and seat counts stay fresh.
 export const revalidate = 60

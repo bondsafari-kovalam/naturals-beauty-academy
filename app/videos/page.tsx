@@ -5,12 +5,13 @@ import { ScrollRevealObserver } from '../../components/scroll-reveal-observer'
 import { SiteFooter } from '../../components/site-footer'
 import { SiteHeader } from '../../components/site-header'
 import { VideoLibrary } from '../../components/video-library'
+import { pageMetadata } from '../../lib/seo'
 
-export const metadata = {
-  title: 'Student Stories | Naturals Beauty Academy',
-  description: 'Watch student stories, makeup, hair and beauty videos from Naturals Beauty Academy, Alappuzha.',
-  alternates: { canonical: '/videos' },
-}
+export const metadata = pageMetadata({
+  title: 'Student Stories & Beauty Videos',
+  description: 'Watch student stories, makeup looks, hair styling and beauty training videos from Naturals Beauty Academy, Alappuzha.',
+  path: '/videos',
+})
 
 // New uploads appear on the site within five minutes when the YouTube API is configured.
 export const revalidate = 300

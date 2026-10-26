@@ -13,6 +13,7 @@ import { WorkshopRegistrationForm } from '../../../components/workshop-registrat
 import { academyToday, workshopDateParts, workshopStartsAt, type Workshop } from '../../../lib/site-config'
 import { getWorkshopBySlug, loadWorkshops, registrationBlock } from '../../../lib/workshops'
 import { workshopWhatsappUrl } from '../../../lib/workshop-campaign'
+import { absoluteUrl, academy, breadcrumbSchema, jsonLd, organizationId, pageMetadata, siteUrl } from '../../../lib/seo'
 
 // Seats-left and "registration closed" refresh at least every minute; the database re-checks on submit.
 export const revalidate = 60
@@ -26,16 +27,41 @@ const summary = (workshop: Workshop) => workshop.shortDescription ?? (workshop.d
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { workshop } = await getWorkshopBySlug((await params).slug)
   if (!workshop) return { title: 'Workshop not found | Naturals Beauty Academy', robots: { index: false } }
-  const title = `${workshop.title} – ${workshopDateParts(workshop.date).label} | Naturals Beauty Academy`
-  const description = summary(workshop)
-  const images = [{ url: workshop.image, alt: `${workshop.title} workshop` }]
-  return {
-    title, description,
-    alternates: { canonical: `/workshops/${workshop.slug}` },
+  return pageMetadata({
+    title: `${workshop.title} – ${workshopDateParts(workshop.date).label}`,
+    description: summary(workshop),
+    path: `/workshops/${workshop.slug}`,
+    image: workshop.image,
+    imageAlt: `${workshop.title} workshop`,
     // A finished workshop stays reachable for old links but is kept out of search results.
     robots: workshop.date < academyToday() ? { index: false, follow: true } : undefined,
-    openGraph: { type: 'website', siteName: 'Naturals Beauty Academy', locale: 'en_IN', url: `/workshops/${workshop.slug}`, title, description, images },
-    twitter: { card: 'summary_large_image', title, description, images: [workshop.image] },
+  })
+}
+
+/** End time from a label such as "10:00 AM – 4:00 PM", as an ISO date-time in India time; undefined if it can't be read. */
+function workshopEndsAt(workshop: Workshop) {
+  const times = [...workshop.time.matchAll(/(\d{1,2})(?::(\d{2}))?\s*([AP])\.?M/gi)]
+  if (times.length < 2) return undefined
+  const [, h, m = '00', half] = times[times.length - 1]
+  const hour = (Number(h) % 12) + (half.toUpperCase() === 'P' ? 12 : 0)
+  const end = `${String(hour).padStart(2, '0')}:${m}`
+  return end > (workshop.start ?? '10:00') ? `${workshop.date}T${end}:00+05:30` : undefined
+}
+
+// Only the details shown on the page: no price is claimed because fees are given as text ("Contact for fee").
+function eventSchema(workshop: Workshop, location: string) {
+  const endDate = workshopEndsAt(workshop)
+  return {
+    '@type': 'Event', name: workshop.title, description: summary(workshop), url: `${siteUrl}/workshops/${workshop.slug}`,
+    startDate: workshopStartsAt(workshop), ...(endDate && { endDate }),
+    eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    image: [absoluteUrl(workshop.image)],
+    // A workshop held elsewhere names its own venue; its street address isn't known, so only the town is given.
+    location: workshop.location
+      ? { '@type': 'Place', name: workshop.location, address: { '@type': 'PostalAddress', addressLocality: 'Alappuzha', addressRegion: 'Kerala', addressCountry: 'IN' } }
+      : { '@type': 'Place', name: location, address: academy.address },
+    organizer: { '@type': 'EducationalOrganization', '@id': organizationId, name: academy.name, url: siteUrl },
+    ...(workshop.trainer && { performer: { '@type': 'Person', name: workshop.trainer.name } }),
   }
 }
 
@@ -72,18 +98,11 @@ export default async function WorkshopCampaignPage({ params }: { params: Promise
     { label: 'Fee', value: workshop.fee ?? 'Contact us', icon: IndianRupee },
     { label: 'Seats', value: seatsText, icon: Ticket },
   ]
-  const event = {
-    '@context': 'https://schema.org', '@type': 'Event', name: workshop.title, description: summary(workshop),
-    startDate: workshopStartsAt(workshop), eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    image: [workshop.image.startsWith('/') ? `https://naturalsbeautyacademypro.com${workshop.image}` : workshop.image],
-    location: { '@type': 'Place', name: location, address: 'Alappuzha, Kerala, India' },
-    organizer: { '@type': 'Organization', name: 'Naturals Beauty Academy', url: 'https://naturalsbeautyacademypro.com' },
-  }
   let step = 0
   const next = () => String(++step).padStart(2, '0')
 
   return <><ScrollRevealObserver /><SiteHeader /><WorkshopCampaignTracker workshop={{ slug: workshop.slug!, title: workshop.title }} /><main className="workshops-page">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(event).replace(/</g, '\\u003c') }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(eventSchema(workshop, location), breadcrumbSchema([['Home', '/'], ['Workshops', '/workshops'], [workshop.title, `/workshops/${workshop.slug}`]]))} />
     <section className="wl-hero"><div className="wl-hero-inner">
       <div className="wl-hero-copy">
         <p className="section-label">{block === 'ended' ? 'Past workshop' : 'Upcoming workshop'} · {workshop.category}</p>
@@ -97,7 +116,7 @@ export default async function WorkshopCampaignPage({ params }: { params: Promise
         </div>
         {block !== 'ended' && <><p className="section-label wl-countdown-title">Workshop starts in</p><WorkshopCountdown startsAt={workshopStartsAt(workshop)} /></>}
       </div>
-      <div className="feature-media" data-reveal><div className="feature-image"><Image src={workshop.image} unoptimized={!canOptimize(workshop.image)} alt={`${workshop.title} workshop`} fill priority sizes="(max-width: 900px) 90vw, 46vw" /></div><div className="feature-badge"><span className="feature-badge-icon"><CalendarDays /></span><span><strong>{date.day} {date.month}</strong>{seatsText}</span></div></div>
+      <div className="feature-media" data-reveal><div className="feature-image"><Image src={workshop.image} unoptimized={!canOptimize(workshop.image)} alt={`${workshop.title} workshop`} fill loading="eager" fetchPriority="high" sizes="(max-width: 900px) 90vw, 46vw" /></div><div className="feature-badge"><span className="feature-badge-icon"><CalendarDays /></span><span><strong>{date.day} {date.month}</strong>{seatsText}</span></div></div>
     </div></section>
 
     <section className="wl-facts wl-facts--six" aria-label="Workshop details">{facts.map(({ label, value, icon: Icon }) => <div className="wl-fact" key={label}><span className="wl-fact-icon"><Icon /></span><span><small>{label}</small><strong>{value}</strong></span></div>)}</section>

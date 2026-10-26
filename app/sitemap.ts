@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { getBlogSlugs, siteUrl } from '../lib/blog'
+import { getBlogSitemapEntries } from '../lib/blog'
+import { siteUrl } from '../lib/seo'
 import { getCourses } from '../lib/courses'
 import { getUpcomingWorkshops } from '../lib/workshops'
 
@@ -21,11 +22,11 @@ const pages: Array<[path: string, changeFrequency: MetadataRoute.Sitemap[number]
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [courses, { workshops }, blogSlugs] = await Promise.all([getCourses(), getUpcomingWorkshops(), getBlogSlugs()])
+  const [courses, { workshops }, posts] = await Promise.all([getCourses(), getUpcomingWorkshops(), getBlogSitemapEntries()])
   return [
     ...pages.map(([path, changeFrequency, priority]) => ({ url: `${siteUrl}${path === '/' ? '' : path}`, changeFrequency, priority })),
     ...courses.map((course) => ({ url: `${siteUrl}/courses/${course.slug}`, changeFrequency: 'monthly' as const, priority: 0.8 })),
     ...workshops.filter((workshop) => workshop.slug).map((workshop) => ({ url: `${siteUrl}/workshops/${workshop.slug}`, changeFrequency: 'daily' as const, priority: 0.8 })),
-    ...blogSlugs.map((slug) => ({ url: `${siteUrl}/blog/${slug}`, changeFrequency: 'monthly' as const, priority: 0.6 })),
+    ...posts.map(({ slug, updatedAt }) => ({ url: `${siteUrl}/blog/${slug}`, lastModified: updatedAt, changeFrequency: 'monthly' as const, priority: 0.6 })),
   ]
 }
