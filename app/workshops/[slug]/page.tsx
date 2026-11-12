@@ -119,7 +119,7 @@ export default async function WorkshopCampaignPage({ params }: { params: Promise
       <div className="feature-media" data-reveal><div className="feature-image"><Image src={workshop.image} unoptimized={!canOptimize(workshop.image)} alt={`${workshop.title} workshop`} fill loading="eager" fetchPriority="high" sizes="(max-width: 900px) 90vw, 46vw" /></div><div className="feature-badge"><span className="feature-badge-icon"><CalendarDays /></span><span><strong>{date.day} {date.month}</strong>{seatsText}</span></div></div>
     </div></section>
 
-    <section className="wl-facts wl-facts--six" aria-label="Workshop details">{facts.map(({ label, value, icon: Icon }) => <div className="wl-fact" key={label}><span className="wl-fact-icon"><Icon /></span><span><small>{label}</small><strong>{value}</strong></span></div>)}</section>
+    <section className="wl-facts wl-facts--six" aria-label="Workshop details">{facts.map(({ label, value, icon: Icon }) => <div className={`wl-fact${label === 'Venue' ? ' wl-fact--venue' : ''}`} key={label}><span className="wl-fact-icon"><Icon /></span><span><small>{label}</small><strong>{value}</strong></span></div>)}</section>
 
     {workshop.shortDescription && workshop.description && <section className="wl-section wr-about"><div data-reveal><p className="section-label">About the workshop</p><p className="wr-about-text">{workshop.description}</p></div></section>}
 
